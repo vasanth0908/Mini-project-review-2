@@ -43,7 +43,66 @@ These requirements support an efficient, scalable, and user-friendly irrigation 
 ## System Architecture
 
 ![Overall-system-architecture-for-smart-farming-7-T-Ojha-S-Misra-and-N-Singh-has](https://github.com/user-attachments/assets/d8fec03e-5ef0-4a69-b4b8-feb956ec83bf)
+## program
+```
+import streamlit as st
+import random
+import sqlite3
+from datetime import datetime
+# Connect to SQLite database (or create it)
+conn = sqlite3.connect('irrigation_data.db')
+c = conn.cursor()
+# Create table to store data if it doesn't already exist
+c.execute('''
+    CREATE TABLE IF NOT EXISTS irrigation_data (
+        timestamp TEXT,
+        temperature REAL,
+        humidity REAL,
+        soil_moisture REAL,
+        system_state TEXT
+    )
+''')
+conn.commit()
+# Function to insert data into the table
+def insert_data(timestamp, temperature, humidity, soil_moisture, system_state):
+    c.execute('''
+        INSERT INTO irrigation_data (timestamp, temperature, humidity, soil_moisture, system_state) 
+        VALUES (?, ?, ?, ?, ?)
+    ''', (timestamp, temperature, humidity, soil_moisture, system_state))
+    conn.commit()
+# Generate simulated weather data
+def get_weather_data():
+    temperature = round(random.uniform(15, 35), 1)
+    humidity = round(random.uniform(30, 90), 1)
+    soil_moisture = round(random.uniform(10, 80), 1)
+    return temperature, humidity, soil_moisture
+# Display title and current data
+st.title("Advanced Smart Irrigation System Control with Data Storage")
+temperature, humidity, soil_moisture = get_weather_data()
+timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+st.write(f"**Date and Time:** {timestamp}”
+# Display simulated data
+st.write("### Weather Conditions")
+st.write(f"**Temperature:** {temperature} °C")
+st.write(f"**Humidity:** {humidity} %")
+st.write(f"**Soil Moisture Level:** {soil_moisture} %")
+# Simulated control system state
+system_state = "OFF"
+# Control buttons and data insertion
+if st.button("Turn On Watering"):
+    system_state = "ON"
+    st.success("Watering system is ON.")
+    insert_data(timestamp, temperature, humidity, soil_moisture, system_state)
+if st.button("Turn Off Watering"):
+    system_state = "OFF"
+    st.warning("Watering system is OFF.")
+    insert_data(timestamp, temperature, humidity, soil_moisture, system_state)
+# Show historical data
+st.write("### Historical Data")
+data = c.execute("SELECT * FROM irrigation_data").fetchall()
+st.table(data)
 
+```
 ## Output
 ![Screenshot 2024-11-08 203234](https://github.com/user-attachments/assets/749614a3-0d4d-46fb-8f9d-695140fc9430)
 
